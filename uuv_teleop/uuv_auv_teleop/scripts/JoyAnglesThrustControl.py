@@ -97,13 +97,19 @@ class JoyAnglesThrustControllerNode:
 
         if not self._ready:
             return
+        # Test if the axis value is outside of the dead-zone
+        if abs(msg.axes[self._joy_axis['axis_thruster']]) > 0.2:
+            thrust = msg.axes[self._joy_axis['axis_thruster']] * \
+                self._thruster_params['max_thrust']
+        else:
+            thrust = 0.0
 
-        thrust = msg.axes[self._joy_axis['axis_thruster']] * \
-            self._thruster_params['max_thrust']
-
+        # Calculate the fin position command
         rpy = numpy.array([msg.axes[self._joy_axis['axis_roll']],
                            msg.axes[self._joy_axis['axis_pitch']],
                            msg.axes[self._joy_axis['axis_yaw']]])
+        rpy[numpy.abs(rpy) < 0.2] = 0.0
+
         fins = self._rpy_to_fins.dot(rpy)
 
         self._thruster_model.publish_command(thrust)
