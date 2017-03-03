@@ -1,0 +1,28 @@
+<launch>
+  <!-- Remember to first launch Gazebo with a underwater world model
+  Example:
+  >> roslaunch uuv_description ocean_waves.launch
+    or
+  >> roslaunch uuv_description empty_underwater_world.launch
+  -->
+  <arg name="uuv_name" default="romulus"/>
+  <arg name="joy_id" default="0"/>
+
+  <include file="$(find uuv_descriptions)/models/romulus/launch/upload_romulus.launch">
+    <arg name="mode" value="default"/>
+    <arg name="namespace" value="$(arg uuv_name)"/>
+    <arg name="x" value="0"/>
+    <arg name="y" value="0"/>
+    <arg name="z" value="-30"/>
+  </include>
+
+  <include file="$(find uuv_auv_teleop)/launch/joy_angles_thrust.launch">
+    <arg name="uuv_name" value="$(arg uuv_name)"/>
+    <arg name="joy_id" value="$(arg joy_id)"/>
+    <arg name="gain_roll" value="1,0,-1,0"/>
+    <arg name="gain_pitch" value="0,1,0,-1"/>
+    <arg name="gain_yaw" value="1,0,-1,0"/>
+    <arg name="thruster_rotor_gain" value="0.0006279"/>
+    <arg name="max_thrust" value="10"/>
+  </include>
+</launch>
