@@ -8,6 +8,10 @@
   <arg name="pitch" default="0.0"/>
   <arg name="yaw" default="0.0"/>
 
+  <arg name="scaling_added_mass" default="1.0"/>
+  <arg name="scaling_linear_damp" default="1.0"/>
+  <arg name="scaling_quad_damping" default="1.0"/>
+
   <arg name="mode" default="default"/>
   <arg name="namespace" default="rexrov"/>
   <arg name="world_frame" default="world"/> <!-- This should actually be "/world". See https://github.com/ros-simulation/gazebo_ros_pkgs/pull/324 -->
@@ -20,6 +24,10 @@
     <arg name="roll" value="$(arg roll)"/>
     <arg name="pitch" value="$(arg pitch)"/>
     <arg name="yaw" value="$(arg yaw)"/>
+
+    <arg name="scaling_added_mass" value="$(arg scaling_added_mass)"/>
+    <arg name="scaling_linear_damp" value="$(arg scaling_linear_damp)"/>
+    <arg name="scaling_quad_damping" value="$(arg scaling_quad_damping)"/>
 
     <arg name="namespace" value="$(arg namespace)"/>
   </include>

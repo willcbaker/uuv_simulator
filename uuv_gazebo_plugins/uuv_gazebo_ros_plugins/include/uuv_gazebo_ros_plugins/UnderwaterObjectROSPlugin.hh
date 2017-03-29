@@ -22,6 +22,7 @@
 #include <string>
 
 #include <uuv_gazebo_plugins/UnderwaterObjectPlugin.hh>
+#include <uuv_gazebo_plugins/HydrodynamicModel.hh>
 
 #include <boost/scoped_ptr.hpp>
 #include <gazebo/gazebo.hh>
@@ -31,7 +32,9 @@
 #include <geometry_msgs/Vector3.h>
 #include <std_msgs/Bool.h>
 #include <visualization_msgs/Marker.h>
+
 #include <uuv_gazebo_ros_plugins_msgs/SetUseGlobalCurrentVel.h>
+#include <uuv_gazebo_ros_plugins_msgs/GetUUVLinkProperties.h>
 
 #include <map>
 
@@ -63,6 +66,12 @@ namespace uuv_simulator_ros
     public: bool SetUseGlobalCurrentVel(
       uuv_gazebo_ros_plugins_msgs::SetUseGlobalCurrentVel::Request& _req,
       uuv_gazebo_ros_plugins_msgs::SetUseGlobalCurrentVel::Response& _res);
+
+    /// \brief Provide all parameters for a link in the underwater object
+    /// structure (e.g. added mass, damping coefficients)
+    public: bool GetUUVLinkProperties(
+      uuv_gazebo_ros_plugins_msgs::GetUUVLinkProperties::Request& _req,
+      uuv_gazebo_ros_plugins_msgs::GetUUVLinkProperties::Response& _res);
 
     /// \brief Publish restoring force
     /// \param[in] _link Pointer to the link where the force information will

@@ -69,6 +69,11 @@ void UnderwaterObjectROSPlugin::Load(gazebo::physics::ModelPtr _parent,
       _parent->GetName() + "/set_use_global_current_velocity",
       &UnderwaterObjectROSPlugin::SetUseGlobalCurrentVel, this);
 
+  this->services["get_uuv_link_properties"] =
+    this->rosNode->advertiseService(_parent->GetName() + \
+    "/get_uuv_link_properties",
+    &UnderwaterObjectROSPlugin::GetUUVLinkProperties, this);
+
   this->rosHydroPub["current_velocity_marker"] =
     this->rosNode->advertise<visualization_msgs::Marker>
     (_parent->GetName() + "/current_velocity_marker", 0);
@@ -269,6 +274,88 @@ bool UnderwaterObjectROSPlugin::SetUseGlobalCurrentVel(
         this->model->GetName() << std::endl;
     _res.success = true;
   }
+  return true;
+}
+
+/////////////////////////////////////////////////
+bool UnderwaterObjectROSPlugin::GetUUVLinkProperties(
+  uuv_gazebo_ros_plugins_msgs::GetUUVLinkProperties::Request& _req,
+  uuv_gazebo_ros_plugins_msgs::GetUUVLinkProperties::Response& _res)
+{
+  for (std::map<gazebo::physics::LinkPtr,
+       gazebo::HydrodynamicModelPtr>::iterator it = this->models.begin();
+       it != this->models.end(); ++it)
+  {
+    gazebo::physics::LinkPtr link = it->first;
+    if (link->GetName().compare(_req.link_name) == 0)
+    {
+      // Set mass
+      _res.mass = link->GetInertial()->GetMass();
+      // Set inertial tensor coefficients
+      _res.ixx = link->GetInertial()->GetIXX();
+      _res.ixy = link->GetInertial()->GetIXY();
+      _res.ixz = link->GetInertial()->GetIXZ();
+      _res.iyy = link->GetInertial()->GetIYY();
+      _res.iyz = link->GetInertial()->GetIYZ();
+      _res.izz = link->GetInertial()->GetIZZ();
+      // Set body volume
+      _res.volume = this->models[link]->GetVolume();
+      // Set current pose in the Gazebo ENU frame
+      gazebo::math::Pose pose = link->GetWorldPose();
+      _res.pose.position.x = pose.pos.x;
+      _res.pose.position.y = pose.pos.y;
+      _res.pose.position.z = pose.pos.z;
+      _res.pose.orientation.x = pose.rot.x;
+      _res.pose.orientation.y = pose.rot.y;
+      _res.pose.orientation.z = pose.rot.z;
+      _res.pose.orientation.w = pose.rot.w;
+      // Set hydrodynamic parameters
+      _res.added_mass = this->models[link]->GetParameterAsVector("added_mass");
+      _res.linear_damping = this->models[link]->GetParameterAsVector(
+        "linear_damping");
+      _res.quad_damping = this->models[link]->GetParameterAsVector(
+        "quad_damping");
+
+      // Set scaling factors
+      _res.added_mass_scaling = this->models[link]->GetParam(
+        "added_mass_scaling");
+      _res.linear_damping_scaling = this->models[link]->GetParam(
+        "linear_damping_scaling");
+      _res.quad_damping_scaling = this->models[link]->GetParam(
+        "quad_damping_scaling");
+
+      // Set bounding box properties
+      _res.bbox_width = this->models[link]->GetParam("bbox_width");
+      _res.bbox_length = this->models[link]->GetParam("bbox_length");
+      _res.bbox_height = this->models[link]->GetParam("bbox_height");
+
+      // Set fluid density
+      _res.fluid_density = this->models[link]->GetFluidDensity();
+
+      // Set neutrally buoyant flag
+      _res.is_neutrally_buoyant = this->models[link]->IsNeutrallyBuoyant();
+
+      // Set center of mass and center of buoyancy
+      _res.center_of_buoyancy.x = this->models[link]->GetCoB().x;
+      _res.center_of_buoyancy.y = this->models[link]->GetCoB().y;
+      _res.center_of_buoyancy.z = this->models[link]->GetCoB().z;
+
+      _res.center_of_mass.x = link->GetInertial()->GetCoG().x;
+      _res.center_of_mass.y = link->GetInertial()->GetCoG().y;
+      _res.center_of_mass.z = link->GetInertial()->GetCoG().z;
+
+      // Set global current flag
+      _res.using_global_current = this->useGlobalCurrent;
+
+      _res.success = true;
+      _res.status_message = this->model->GetName() + "::" + link->GetName() + \
+        " link found.";
+      return true;
+    }
+  }
+  _res.success = false;
+  _res.status_message =
+    "Invalid link name or link doesn't have a hydrodynamic model";
   return true;
 }
 

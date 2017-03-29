@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(uuv_gazebo_ros_plugins_msgs)
 
-find_package(catkin REQUIRED std_msgs message_generation)
+find_package(catkin REQUIRED std_msgs geometry_msgs message_generation)
 
 add_message_files(
   FILES
@@ -15,11 +15,13 @@ add_service_files(
   GetThrusterEfficiency.srv
   GetThrusterState.srv
   SetUseGlobalCurrentVel.srv
+  GetUUVLinkProperties.srv
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 catkin_package(

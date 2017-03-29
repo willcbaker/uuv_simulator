@@ -68,6 +68,12 @@ void BuoyantObject::SetNeutrallyBuoyant()
 }
 
 /////////////////////////////////////////////////
+bool BuoyantObject::IsNeutrallyBuoyant()
+{
+  return this->neutrallyBuoyant;
+}
+
+/////////////////////////////////////////////////
 math::Vector3 BuoyantObject::GetBuoyancyForce(const math::Pose &_pose)
 {
   double height = this->boundingBox.GetZLength();
@@ -227,5 +233,22 @@ bool BuoyantObject::IsSubmerged(const math::Pose &_pose)
     return false;
   else
     return true;
+}
+
+/////////////////////////////////////////////////
+double BuoyantObject::GetParam(std::string _tag)
+{
+  if (_tag.compare("volume") == 0)
+    return this->volume;
+  else if (_tag.compare("fluid_density") == 0)
+    return this->fluidDensity;
+  else if (_tag.compare("bbox_width") == 0)
+    return this->boundingBox.GetYLength();
+  else if (_tag.compare("bbox_length") == 0)
+    return this->boundingBox.GetXLength();
+  else if (_tag.compare("bbox_height") == 0)
+    return this->boundingBox.GetZLength();
+  gzmsg << "Invalid parameter tag, tag=" << _tag << std::endl;
+  return -1;
 }
 }

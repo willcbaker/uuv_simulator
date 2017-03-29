@@ -89,7 +89,8 @@
     </gazebo>
   </xacro:macro>
 
-  <xacro:macro name="rexrov_base" params="namespace debug">
+  <xacro:macro name="rexrov_base" params="namespace debug scaling_added_mass
+    scaling_linear_damp scaling_quad_damping">
     <!-- base_link according to ROS conventions: x forward, z up -->
     <link name="${namespace}/base_link">
       <inertial>
@@ -163,10 +164,13 @@
                 -165.54 -5.8488 -386.42 -10.027 842.69 -1.1162
                 -7.8033 62.726 10.775 21.019 -1.1162 224.32
             </added_mass>
+            <added_mass_scaling>${scaling_added_mass}</added_mass_scaling>
             <!-- Linear damping: see p.31 in Berg2012 -->
             <linear_damping>-74.82 -69.48 -728.4 -268.8 -309.77 -105</linear_damping>
+            <linear_damping_scaling>${scaling_linear_damp}</linear_damping_scaling>
             <!-- Non-linear damping: see p.30 in Berg2012 -->
             <quadratic_damping>-748.22 -992.53 -1821.01 -672 -774.44 -523.27</quadratic_damping>
+            <quad_damping_scaling>${scaling_quad_damping}</quad_damping_scaling>
           </hydrodynamic_model>
         </link>
       </plugin>

@@ -1,0 +1,42 @@
+# Copyright (c) 2016 The UUV Simulator Authors.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+string link_name
+---
+geometry_msgs/Pose pose
+float64 mass
+float64 volume
+float64 ixx
+float64 ixy
+float64 ixz
+float64 iyy
+float64 iyz
+float64 izz
+float64[] added_mass
+float64[] linear_damping
+float64[] quad_damping
+float64 added_mass_scaling
+float64 linear_damping_scaling
+float64 quad_damping_scaling
+geometry_msgs/Vector3 center_of_buoyancy
+geometry_msgs/Vector3 center_of_mass
+float64 bbox_width
+float64 bbox_height
+float64 bbox_length
+bool is_neutrally_buoyant
+float64 fluid_density
+bool success
+string status_message
+bool using_global_current

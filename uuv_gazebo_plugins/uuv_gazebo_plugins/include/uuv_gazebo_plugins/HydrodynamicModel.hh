@@ -53,6 +53,10 @@ class HydrodynamicModel : public BuoyantObject
   public: virtual void Print(std::string _paramName,
                              std::string _message = std::string()) = 0;
 
+  /// \brief Return matrix as a vector
+  public: virtual std::vector<double> GetParameterAsVector(
+    std::string _tag) = 0;
+
   /// \brief Filter acceleration (fix due to the update structure of Gazebo)
   protected: void ComputeAcc(Eigen::Vector6d _velRel,
                             double _time,
@@ -156,6 +160,12 @@ class HMFossen : public HydrodynamicModel
   public: virtual void ApplyHydrodynamicForces(double time,
                             const math::Vector3 &_flowVelWorld);
 
+  /// \brief Return matrix as a vector
+  public: std::vector<double> GetParameterAsVector(std::string _tag);
+
+  /// \brief Return scalar parameter
+  public: double GetParam(std::string _tag);
+
   /// \brief Computes the added-mass Coriolis matrix Ca.
   protected: void ComputeAddedCoriolisMatrix(const Eigen::Vector6d& _vel,
                                              const Eigen::Matrix6d& _Ma,
@@ -179,6 +189,15 @@ class HMFossen : public HydrodynamicModel
 
   /// \brief Quadratic damping coefficients
   protected: std::vector<double> quadDampCoef;
+
+  /// \brief Added-mass parameter uncertainty
+  protected: double addedMassScaling;
+
+  /// \brief Linear damping uncertainty
+  protected: double linearDampScaling;
+
+  /// \brief Quadratic damping uncertainty
+  protected: double quadDampScaling;
 };
 
 //////////////////////////////////////////////////////////////////////////////

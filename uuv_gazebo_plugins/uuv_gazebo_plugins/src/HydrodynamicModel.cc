@@ -212,6 +212,60 @@ HMFossen::HMFossen(sdf::ElementPtr _sdf,
   else
     gzmsg << "HMFossen: Using quad damping NULL" << std::endl;
 
+  if (modelParams->HasElement("added_mass_scaling"))
+  {
+    this->addedMassScaling =
+      modelParams->Get<double>("added_mass_scaling");
+    if (this->addedMassScaling < 0)
+    {
+      this->addedMassScaling = 1.0;
+      gzmsg << "Invalid added-mass parameter scaling, " <<
+        "setting scaling factor to 1.0. value=" <<
+        this->addedMassScaling << std::endl;
+    }
+  }
+  else
+    this->addedMassScaling = 1.0;
+
+  gzmsg << _link->GetName() << "::Added-mass scaling factor = " <<
+      this->addedMassScaling << std::endl;
+
+  if (modelParams->HasElement("linear_damping_scaling"))
+  {
+    this->linearDampScaling =
+      modelParams->Get<double>("linear_damping_scaling");
+    if (this->linearDampScaling < 0)
+    {
+      this->linearDampScaling = 1.0;
+      gzmsg << "Invalid linear damping parameter scaling, " <<
+        "setting scaling factor to 1.0. value=" <<
+        this->linearDampScaling << std::endl;
+    }
+  }
+  else
+    this->linearDampScaling = 1.0;
+
+  gzmsg << _link->GetName() << "::Linear damping scaling factor = " <<
+    this->linearDampScaling << std::endl;
+
+  if (modelParams->HasElement("quad_damping_scaling"))
+  {
+    this->quadDampScaling =
+      modelParams->Get<double>("quad_damping_scaling");
+    if (this->quadDampScaling < 0 || this->quadDampScaling > 1)
+    {
+      this->quadDampScaling = 1.0;
+      gzmsg << "Invalid quadratic damping parameter scaling, " <<
+        "setting scaling factor to 1.0. value=" <<
+        this->quadDampScaling << std::endl;
+    }
+  }
+  else
+    this->quadDampScaling = 1.0;
+
+  gzmsg << _link->GetName() << "::Quad. damping scaling factor = " <<
+    this->quadDampScaling << std::endl;
+
   GZ_ASSERT(addedMass.size() == 36,
             "Added-mass coefficients vector must have 36 elements");
   GZ_ASSERT(linDampCoef.size() == 6,
@@ -262,7 +316,8 @@ void HMFossen::ApplyHydrodynamicForces(
     this->link->GetRelativeTorque());
 
   // Update added Coriolis matrix
-  this->ComputeAddedCoriolisMatrix(vel_rel, this->Ma, this->Ca);
+  this->ComputeAddedCoriolisMatrix(vel_rel,
+    this->addedMassScaling * this->Ma, this->Ca);
 
   // Update damping matrix
   this->ComputeDampingMatrix(vel_rel, this->D);
@@ -277,7 +332,8 @@ void HMFossen::ApplyHydrodynamicForces(
   Eigen::Vector6d damping = -this->D * vel_rel;
 
   // Added-mass forces and torques
-  Eigen::Vector6d added = -this->Ma * this->filteredAcc;
+  Eigen::Vector6d added =
+    -1 * this->addedMassScaling * this->Ma * this->filteredAcc;
 
   // Added Coriolis term
   Eigen::Vector6d cor = -this->Ca * vel_rel;
@@ -340,8 +396,40 @@ void HMFossen::ComputeDampingMatrix(const Eigen::Vector6d& _vel,
   _D.setZero();
 
   for (int i = 0; i < 6; i++)
-    _D(i, i) = -this->linearDampCoef[i] + \
-               -this->quadDampCoef[i] * std::fabs(_vel[i]);
+    _D(i, i) =
+      -1 * this->linearDampScaling * this->linearDampCoef[i] + \
+      -1 * this->quadDampScaling * this->quadDampCoef[i] * \
+      std::fabs(_vel[i]);
+}
+
+/////////////////////////////////////////////////
+std::vector<double> HMFossen::GetParameterAsVector(std::string _tag)
+{
+  std::vector<double> output;
+  if (_tag.compare("added_mass") == 0)
+  {
+    for (int i = 0; i < 6; i++)
+      for (int j = 0; j < 6; j++)
+        output.push_back(this->Ma(i, j));
+  }
+  else if (_tag.compare("linear_damping") == 0)
+    output = this->linearDampCoef;
+  else if (_tag.compare("quad_damping") == 0)
+    output = this->quadDampCoef;
+  return output;
+}
+
+/////////////////////////////////////////////////
+double HMFossen::GetParam(std::string _tag)
+{
+  if (_tag.compare("added_mass_scaling") == 0)
+    return this->addedMassScaling;
+  else if (_tag.compare("linear_damping_scaling") == 0)
+    return this->linearDampScaling;
+  else if (_tag.compare("quad_damping_scaling") == 0)
+    return this->quadDampScaling;
+  else
+    return BuoyantObject::GetParam(_tag);
 }
 
 /////////////////////////////////////////////////

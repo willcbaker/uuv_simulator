@@ -97,6 +97,12 @@ class BuoyantObject
   /// \brief Sets this link as neutrally buoyant
   public: void SetNeutrallyBuoyant();
 
+  /// \brief Returns true if the link is set to be neutrally buoyant
+  public: bool IsNeutrallyBuoyant();
+
+  /// \brief Return scalar parameter
+  public: virtual double GetParam(std::string _tag);
+
   /// \brief Store vector in the hydroWrench map if the field has been created
   protected: void StoreVector(std::string _tag, gazebo::math::Vector3 _vec);
 
