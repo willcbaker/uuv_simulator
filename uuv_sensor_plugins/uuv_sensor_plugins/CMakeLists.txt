@@ -94,7 +94,7 @@ add_library(uuv_gazebo_camera SHARED
   src/SensorPlugin.cc
   src/UnderwaterCameraPlugin.cc
 )
-target_link_libraries(uuv_gazebo_camera ${common_libraries} ${OpenCV_INCLUDE_DIRS}
+target_link_libraries(uuv_gazebo_camera ${common_libraries} ${OpenCV_LIBRARIES}
   gazebo_sensors DepthCameraPlugin)
 add_dependencies(uuv_gazebo_camera uuv_sensors_msgs ${catkin_EXPORTED_TARGETS})
 
