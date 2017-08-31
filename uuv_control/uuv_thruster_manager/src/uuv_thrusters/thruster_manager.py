@@ -158,8 +158,6 @@ class ThrusterManager:
 
         self.ready = False
         print('ThrusterManager: updating thruster poses')
-        # Small margin to make sure we get thruster frames via tf
-        now = rospy.Time.now() + rospy.Duration(1.0)
 
         base = self.namespace + self.config['base_link']
 
@@ -188,9 +186,8 @@ class ThrusterManager:
             try:
                 # try to get thruster pose with respect to base frame via tf
                 print('transform: ' + base + ' -> ' + frame)
-                listener.waitForTransform(base, frame,
-                                               now, rospy.Duration(20.0))
-                [pos, quat] = listener.lookupTransform(base, frame, now)
+                listener.waitForTransform(base, frame, rospy.Time(), rospy.Duration(20.0))
+                [pos, quat] = listener.lookupTransform(base, frame, rospy.Time())
 
                 topic = self.config['thruster_topic_prefix'] + str(i) + \
                     self.config['thruster_topic_suffix']
@@ -217,9 +214,9 @@ class ThrusterManager:
                                        'function=%s'
                                        % self.config['conversion_fcn'])
                 self.thrusters.append(thruster)
-            except tf.Exception:
-                print('could not get transform from: ' + base)
-                print('to: ' + frame)
+            except tf.Exception as tf_e:
+                print('could not get transform: {} --> {}'.format(base, frame))
+                print(tf_e)
                 break
 
         print self.thrusters
